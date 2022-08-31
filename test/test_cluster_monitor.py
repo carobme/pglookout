@@ -70,7 +70,7 @@ def test_main_loop(db):
     )
     cm.main_monitoring_loop(requested_check=True)
 
-    assert len(cm.cluster_state) == 2
+    assert len(cm.cluster_state) == 3
     assert "test1db" in cm.cluster_state
     assert "test2db" in cm.cluster_state
 
