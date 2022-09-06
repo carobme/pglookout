@@ -174,7 +174,8 @@ class PgLookout:
         start_time = time.monotonic()
         state_file_path = self.config.get("json_state_file_path", "/tmp/pglookout_state.json")
         overall_state = {"db_nodes": self.cluster_state, "observer_nodes": self.observer_state,
-                         "current_master": self.current_master}
+                         "current_master": self.current_master,
+                         "known_replication_slots": self.cluster_monitor.known_replication_slots}
         try:
             json_to_dump = json.dumps(overall_state, indent=4)
             self.log.debug("Writing JSON state file to: %r, file_size: %r", state_file_path, len(json_to_dump))

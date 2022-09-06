@@ -84,6 +84,7 @@ class ClusterMonitor(Thread):
         self.cluster_monitor_check_queue = cluster_monitor_check_queue
         self.failover_decision_queue = failover_decision_queue
         self.is_replication_lag_over_warning_limit = is_replication_lag_over_warning_limit
+        self.known_replication_slots = {}
         self.session = requests.Session()
         if self.config.get("syslog"):
             self.syslog_handler = logutil.set_syslog_handler(
@@ -307,6 +308,15 @@ class ClusterMonitor(Thread):
                 self.cluster_state[instance]["min_replication_time_lag"] = now_lag
             else:
                 self.cluster_state[instance]["min_replication_time_lag"] = min(min_lag, now_lag)
+
+        # remember currently defined replication slots in case the master goes away and we
+        # need that information later on
+        if "replication_slots" in result:
+            self.known_replication_slots = {
+                "instance": instance,
+                "slots": result["replication_slots"],
+                "last_updated": time.monotonic(),
+            }
 
     def main_monitoring_loop(self, requested_check=False):
         self.connect_to_cluster_nodes_and_cleanup_old_nodes()
